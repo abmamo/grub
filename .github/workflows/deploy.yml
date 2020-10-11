@@ -45,21 +45,19 @@ jobs:
       run: go build . 
       
     # Run vet & lint on the code
-    - name: Run vet & lint
-      run: |
-        go vet .
-        golint .
+    #- name: Run vet & lint
+    #  run: |
+    #    go vet .
+    #    golint .
+    
+    # Make .env file
+    - name: Make .env file
+      uses: SpicyPizza/create-envfile@v1
+      with:
+        envkey_ATLAS_URI: ${{ secrets.ATLAS_URI }}
+        envkey_DB_NAME: ${{ secrets.DB_NAME }}
+        file_name: .env
 
     # Run testing on the code
     - name: Run testing
-      steps:
-        - name: Make .env file
-          uses: SpicyPizza/create-envfile@v1
-          with:
-            envkey_ATLAS_URI: ${{ secrets.ATLAS_URI }}
-            envkey_DB_NAME: ${{ secrets.DB_NAME }}
-            file_name: .env
-        - name: Start testing
-          run: 
-
       run: go test -v
