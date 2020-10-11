@@ -49,7 +49,17 @@ jobs:
       run: |
         go vet .
         golint .
-    
+
     # Run testing on the code
     - name: Run testing
-      run: cd test && go test -v
+      steps:
+        - name: Make .env file
+          uses: SpicyPizza/create-envfile@v1
+          with:
+            envkey_ATLAS_URI: ${{ secrets.ATLAS_URI }}
+            envkey_DB_NAME: ${{ secrets.DB_NAME }}
+            file_name: .env
+        - name: Start testing
+          run: 
+
+      run: go test -v
