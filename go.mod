@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/flosch/pongo2 v0.0.0-20200913210552-0d938eb266f3
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
 	github.com/nlopes/slack v0.6.0

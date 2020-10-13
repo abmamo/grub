@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -111,9 +113,9 @@ func GetCart(w http.ResponseWriter, request *http.Request) {
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to ObjectID
-	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	cartID, _ := primitive.ObjectIDFromHex(params["cartID"])
 	// create filter
-	filter := bson.M{"_id": cartId}
+	filter := bson.M{"_id": cartID}
 	// get cart from db
 	err := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
 	// check query error
@@ -137,9 +139,9 @@ func UpdateCart(w http.ResponseWriter, request *http.Request) {
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to object id
-	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	cartID, _ := primitive.ObjectIDFromHex(params["cartID"])
 	// create filter
-	filter := bson.M{"_id": cartId}
+	filter := bson.M{"_id": cartID}
 	// get update params
 	_ = json.NewDecoder(request.Body).Decode(&cart)
 	// prepare update model
@@ -173,9 +175,9 @@ func DeleteCart(w http.ResponseWriter, request *http.Request) {
 	// get params
 	var params = mux.Vars(request)
 	// string to primitive ObjectId
-	cartId, err := primitive.ObjectIDFromHex(params["cartId"])
+	cartID, err := primitive.ObjectIDFromHex(params["cartID"])
 	// prepare filter
-	filter := bson.M{"_id": cartId}
+	filter := bson.M{"_id": cartID}
 	// delete query
 	deleteResult, err := cartsCollection.DeleteOne(context.TODO(), filter)
 	// check if query succeeded
@@ -199,9 +201,9 @@ func AllOrders(w http.ResponseWriter, request *http.Request) {
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to object id
-	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	cartID, _ := primitive.ObjectIDFromHex(params["cartID"])
 	// create filter
-	filter := bson.M{"_id": cartId}
+	filter := bson.M{"_id": cartID}
 	// get cart from db
 	err := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
 	// check query error
@@ -227,9 +229,9 @@ func CreateOrder(w http.ResponseWriter, request *http.Request) {
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to ObjectID
-	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	cartID, _ := primitive.ObjectIDFromHex(params["cartID"])
 	// create filter
-	filter := bson.M{"_id": cartId}
+	filter := bson.M{"_id": cartID}
 	// get cart from db
 	findErr := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
 	// check query error
@@ -279,13 +281,15 @@ func InitAPI() {
 	// register handlers
 	router.HandleFunc("/carts", AllCarts).Methods("GET")
 	router.HandleFunc("/carts/create", CreateCart).Methods("POST")
-	router.HandleFunc("/carts/get/{cartId}", GetCart).Methods("GET")
-	router.HandleFunc("/carts/update/{cartId}", UpdateCart).Methods("PUT")
-	router.HandleFunc("/carts/delete/{cartId}", DeleteCart).Methods("DELETE")
-	router.HandleFunc("/carts/get/{cartId}/orders", AllOrders).Methods("GET")
-	router.HandleFunc("/carts/update/{cartId}/orders/create", CreateOrder).Methods("POST")
-	//router.HandleFunc("/carts/update/{cartId}/orders/update/{orderId}", UpdateOrder).Methods("PUT")
-	//router.HandleFunc("/carts/delete/{cartId}/orders/delete/{orderId}", DeleteOrder).Methods("DELETE")
+	router.HandleFunc("/carts/get/{cartID}", GetCart).Methods("GET")
+	router.HandleFunc("/carts/update/{cartID}", UpdateCart).Methods("PUT")
+	router.HandleFunc("/carts/delete/{cartID}", DeleteCart).Methods("DELETE")
+	router.HandleFunc("/carts/get/{cartID}/orders", AllOrders).Methods("GET")
+	router.HandleFunc("/carts/update/{cartID}/orders/create", CreateOrder).Methods("POST")
+	//router.HandleFunc("/carts/update/{cartID}/orders/update/{orderId}", UpdateOrder).Methods("PUT")
+	//router.HandleFunc("/carts/delete/{cartID}/orders/delete/{orderId}", DeleteOrder).Methods("DELETE")
+	// configure logger
+	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 	// serve
-	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, router))
+	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, loggedRouter))
 }
