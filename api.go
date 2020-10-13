@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -39,10 +40,10 @@ func ErrorHandler(err error, w http.ResponseWriter) {
 func AllCarts(w http.ResponseWriter, request *http.Request) {
 	// set response ehader
 	w.Header().Set("Content-Type", "application/json")
-	// create cart storing array
-	var carts []Cart
 	// get mongodb collection
 	cartsCollection := db.Collection("carts")
+	// create cart storing array
+	var carts []Cart
 	// get all data from collection
 	cur, err := cartsCollection.Find(context.TODO(), bson.M{})
 	// check if error
@@ -79,14 +80,14 @@ func AllCarts(w http.ResponseWriter, request *http.Request) {
 func CreateCart(w http.ResponseWriter, request *http.Request) {
 	// set header
 	w.Header().Set("Content-Type", "application/json")
+	// get mongodb collection
+	cartsCollection := db.Collection("carts")
 	// create cart
 	var cart Cart
 	// decode request params
 	_ = json.NewDecoder(request.Body).Decode(&cart)
 	// serialize cart
 	cart.Serialize()
-	// get mongodb collection
-	cartsCollection := db.Collection("carts")
 	// insert cart into database
 	result, err := cartsCollection.InsertOne(context.TODO(), cart)
 	// check if error during insertion
@@ -103,16 +104,16 @@ func CreateCart(w http.ResponseWriter, request *http.Request) {
 func GetCart(w http.ResponseWriter, request *http.Request) {
 	// set header
 	w.Header().Set("Content-Type", "application/json")
+	// get carts collection
+	cartsCollection := db.Collection("carts")
 	// init cart variable
 	var cart Cart
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to ObjectID
-	id, _ := primitive.ObjectIDFromHex(params["id"])
+	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
 	// create filter
-	filter := bson.M{"_id": id}
-	// get carts collection
-	cartsCollection := db.Collection("carts")
+	filter := bson.M{"_id": cartId}
 	// get cart from db
 	err := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
 	// check query error
@@ -136,18 +137,19 @@ func UpdateCart(w http.ResponseWriter, request *http.Request) {
 	// get params from request
 	var params = mux.Vars(request)
 	// convert string to object id
-	id, _ := primitive.ObjectIDFromHex(params["id"])
+	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
 	// create filter
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": cartId}
 	// get update params
 	_ = json.NewDecoder(request.Body).Decode(&cart)
 	// prepare update model
 	update := bson.D{
 		{"$set", bson.D{
-			{"Name", cart.Name},
-			{"Admin", cart.Admin},
-			{"CoAdmins", cart.CoAdmins},
-			{"MenuLinks", cart.MenuLinks},
+			{"name", cart.Name},
+			{"admin", cart.Admin},
+			{"coadmins", cart.CoAdmins},
+			{"menulinks", cart.MenuLinks},
+			{"expires", cart.Expires},
 		}},
 	}
 	// run update query
@@ -162,17 +164,18 @@ func UpdateCart(w http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(w).Encode(cart)
 }
 
+// DeleteCart : delete a cart in db by id
 func DeleteCart(w http.ResponseWriter, request *http.Request) {
 	// set header
 	w.Header().Set("Content-Type", "application/json")
+	// get collection
+	cartsCollection := db.Collection("carts")
 	// get params
 	var params = mux.Vars(request)
 	// string to primitive ObjectId
-	id, err := primitive.ObjectIDFromHex(params["id"])
+	cartId, err := primitive.ObjectIDFromHex(params["cartId"])
 	// prepare filter
-	filter := bson.M{"_id": id}
-	// get collection
-	cartsCollection := db.Collection("carts")
+	filter := bson.M{"_id": cartId}
 	// delete query
 	deleteResult, err := cartsCollection.DeleteOne(context.TODO(), filter)
 	// check if query succeeded
@@ -185,15 +188,83 @@ func DeleteCart(w http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(w).Encode(deleteResult)
 }
 
-/*
-func CreateCart(w http.ResponseWriter, request *http.Request) {}
-func UpdateCart(w http.ResponseWriter, request *http.Request) {}
-func DeleteCart(w http.ResponseWriter, request *http.Request) {}
-func AllOrders(w http.ResponseWriter, request *http.Request) {}
-func CreateOrder(w http.ResponseWriter, request *http.Request) {}
-func UpdateOrder(w http.ResponseWriter, request *http.Request) {}
-func DeleteOrder(w http.ResponseWriter, request *http.Request) {}
-*/
+// AllOrders : get all orders in a cart by card id
+func AllOrders(w http.ResponseWriter, request *http.Request) {
+	// set header
+	w.Header().Set("Content-Type", "application/json")
+	// get carts collection
+	cartsCollection := db.Collection("carts")
+	// init cart variable
+	var cart Cart
+	// get params from request
+	var params = mux.Vars(request)
+	// convert string to object id
+	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	// create filter
+	filter := bson.M{"_id": cartId}
+	// get cart from db
+	err := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
+	// check query error
+	if err != nil {
+		// handle error
+		ErrorHandler(err, w)
+		// return
+		return
+	}
+	fmt.Println(cart.Orders)
+	// write orders
+	json.NewEncoder(w).Encode(cart.Orders)
+}
+
+// CreateOrder : adds an order to a given cart
+func CreateOrder(w http.ResponseWriter, request *http.Request) {
+	// set header
+	w.Header().Set("Content-Type", "application/json")
+	// get carts collection
+	cartsCollection := db.Collection("carts")
+	// init cart variable
+	var cart Cart
+	// get params from request
+	var params = mux.Vars(request)
+	// convert string to ObjectID
+	cartId, _ := primitive.ObjectIDFromHex(params["cartId"])
+	// create filter
+	filter := bson.M{"_id": cartId}
+	// get cart from db
+	findErr := cartsCollection.FindOne(context.TODO(), filter).Decode(&cart)
+	// check query error
+	if findErr != nil {
+		// handle error
+		ErrorHandler(findErr, w)
+		// return
+		return
+	}
+	// create order
+	var order Order
+	// decode request params
+	_ = json.NewDecoder(request.Body).Decode(&order)
+	// update order
+	order.ID = primitive.NewObjectID()
+	// add order to card
+	cart.Orders = append(cart.Orders, order)
+	// update cart in db
+	// prepare update model
+	update := bson.D{
+		{"$set", bson.D{
+			{"orders", cart.Orders},
+		}},
+	}
+	// run update query
+	updateErr := cartsCollection.FindOneAndUpdate(context.TODO(), filter, update).Decode(&cart)
+	// check if query succeeded
+	if updateErr != nil {
+		// handle error
+		ErrorHandler(updateErr, w)
+		// return
+		return
+	}
+	json.NewEncoder(w).Encode(cart)
+}
 
 // InitAPI : initialize cart management API
 func InitAPI() {
@@ -208,16 +279,13 @@ func InitAPI() {
 	// register handlers
 	router.HandleFunc("/carts", AllCarts).Methods("GET")
 	router.HandleFunc("/carts/create", CreateCart).Methods("POST")
-	router.HandleFunc("/carts/get/{id}", GetCart).Methods("GET")
-	router.HandleFunc("/carts/update/{id}", UpdateCart).Methods("PUT")
-	router.HandleFunc("/carts/delete/{id}", DeleteCart).Methods("DELETE")
-	//router.HandleFunc("/carts/get/{id}/orders", GetOrders).Methods("GET")
-	/*
-		mux.HandleFunc("/order/all", AllOrders).Methods("GET")
-		mux.HandleFunc("/order/create", CreateOrder).Methods("POST")
-		mux.HandleFunc("/order/update", UpdateOrder).Methods("POST")
-		mux.HandleFunc("/order/delete" DeleteOrder).Methods("POST")
-	*/
+	router.HandleFunc("/carts/get/{cartId}", GetCart).Methods("GET")
+	router.HandleFunc("/carts/update/{cartId}", UpdateCart).Methods("PUT")
+	router.HandleFunc("/carts/delete/{cartId}", DeleteCart).Methods("DELETE")
+	router.HandleFunc("/carts/get/{cartId}/orders", AllOrders).Methods("GET")
+	router.HandleFunc("/carts/update/{cartId}/orders/create", CreateOrder).Methods("POST")
+	//router.HandleFunc("/carts/update/{cartId}/orders/update/{orderId}", UpdateOrder).Methods("PUT")
+	//router.HandleFunc("/carts/delete/{cartId}/orders/delete/{orderId}", DeleteOrder).Methods("DELETE")
 	// serve
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, router))
 }

@@ -12,11 +12,11 @@ type Cart struct {
 	ID         primitive.ObjectID `bson:"_id,omitempty"`
 	Name       string             `bson:"name,omitempty"`
 	Serialized string             `bson:"serialized,omitempty"`
-	Items      []Order
-	Expires    time.Time `bson:"expires,omitempty"`
-	Admin      string    `bson:"admin,omitempty"`
-	CoAdmins   []string  `bson:"coadmins,omitempty"`
-	MenuLinks  []string  `bson:"menuLinks,omitempty"`
+	Orders     []Order            `bson:"orders,omitempty"`
+	Expires    time.Time          `bson:"expires,omitempty"`
+	Admin      string             `bson:"admin,omitempty"`
+	CoAdmins   []string           `bson:"coadmins,omitempty"`
+	MenuLinks  []string           `bson:"menulinks,omitempty"`
 }
 
 // Serialize : function to generate serialized cart name
@@ -46,7 +46,7 @@ func (c *Cart) AddOrder(o Order) (Order, error) {
 		return Order{}, errors.New("cart has expired")
 	}
 	// append to cart items
-	c.Items = append(c.Items, o)
+	c.Orders = append(c.Orders, o)
 	// return order
 	return o, nil
 }
@@ -54,12 +54,12 @@ func (c *Cart) AddOrder(o Order) (Order, error) {
 // RemoveOrder : function to remove order from a cart
 func (c *Cart) RemoveOrder(person string) error {
 	// iterate through items until found
-	for idx, item := range c.Items {
+	for idx, item := range c.Orders {
 		// check if person name matches
 		if item.Person == person {
 			// remove item
-			c.Items[len(c.Items)-1], c.Items[idx] = c.Items[idx], c.Items[len(c.Items)-1]
-			c.Items = c.Items[:len(c.Items)-1]
+			c.Orders[len(c.Orders)-1], c.Orders[idx] = c.Orders[idx], c.Orders[len(c.Orders)-1]
+			c.Orders = c.Orders[:len(c.Orders)-1]
 			// return success
 			return nil
 		}
@@ -70,7 +70,7 @@ func (c *Cart) RemoveOrder(person string) error {
 // GetOrder : function to get order from a cart
 func (c *Cart) GetOrder(person string) (Order, error) {
 	// iterate through items
-	for _, item := range c.Items {
+	for _, item := range c.Orders {
 		// check if person matches
 		if item.Person == person {
 			// return order
@@ -82,12 +82,12 @@ func (c *Cart) GetOrder(person string) (Order, error) {
 
 // AllOrders : function to get all orders from a cart
 func (c *Cart) AllOrders() []Order {
-	return c.Items
+	return c.Orders
 }
 
 // NumOrders : function to get num orders in a cart
 func (c *Cart) NumOrders() int {
-	return len(c.Items)
+	return len(c.Orders)
 }
 
 // AllMenuLinks : function to get all menu links from a cart

@@ -13,7 +13,7 @@ func TestCartInit(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
@@ -28,7 +28,7 @@ func TestCartIsExpired(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.IsExpired() == true {
 		t.Errorf("cart expired on init")
 	}
@@ -48,7 +48,7 @@ func TestCartSerialize(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
 	}
@@ -72,7 +72,7 @@ func TestCartAddOrder(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
@@ -82,7 +82,7 @@ func TestCartAddOrder(t *testing.T) {
 	order.AddItem("test item")
 	_, _ = cart.AddOrder(order)
 
-	if len(cart.Items) == 0 {
+	if len(cart.Orders) == 0 {
 		t.Errorf("cart add item failed")
 	}
 }
@@ -95,7 +95,7 @@ func TestCartGetOrder(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
@@ -105,7 +105,7 @@ func TestCartGetOrder(t *testing.T) {
 	order.AddItem("test item")
 	_, _ = cart.AddOrder(order)
 
-	if len(cart.Items) == 0 {
+	if len(cart.Orders) == 0 {
 		t.Errorf("cart add item failed")
 	}
 	newOrder, err := cart.GetOrder("test order")
@@ -122,7 +122,7 @@ func TestCartRemoveOrder(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
@@ -132,12 +132,12 @@ func TestCartRemoveOrder(t *testing.T) {
 	order.AddItem("test item")
 	_, _ = cart.AddOrder(order)
 
-	if len(cart.Items) == 0 {
+	if len(cart.Orders) == 0 {
 		t.Errorf("cart add item failed")
 	}
-	// remove items
+	// remove Orders
 	err := cart.RemoveOrder("test order")
-	if err != nil && len(cart.Items) != 0 {
+	if err != nil && len(cart.Orders) != 0 {
 		t.Errorf("cart remove item failed")
 	}
 }
@@ -150,7 +150,7 @@ func TestCartAllOrders(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
@@ -160,7 +160,7 @@ func TestCartAllOrders(t *testing.T) {
 	order.AddItem("test item")
 	_, _ = cart.AddOrder(order)
 
-	if len(cart.Items) == 0 {
+	if len(cart.Orders) == 0 {
 		t.Errorf("cart add item failed")
 	}
 	allOrders := cart.AllOrders()
@@ -177,7 +177,7 @@ func TestCartAddMenuLink(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
 	}
@@ -201,7 +201,7 @@ func TestCartRemoveMenuLink(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
 	}
@@ -230,7 +230,7 @@ func TestCartAddCoAdmin(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
 	}
@@ -254,7 +254,7 @@ func TestCartRemoveCoAdmin(t *testing.T) {
 	// get future time
 	future := now.Add(time.Hour*time.Duration(hours) + time.Minute*time.Duration(mins) + time.Second*time.Duration(sec))
 	// create cart
-	cart := Cart{Name: "test", Items: []Order{}, Expires: future}
+	cart := Cart{Name: "test", Orders: []Order{}, Expires: future}
 	if cart.Name != "test" {
 		t.Errorf("cart init failed")
 	}
