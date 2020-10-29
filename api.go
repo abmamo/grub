@@ -268,8 +268,36 @@ func CreateOrder(w http.ResponseWriter, request *http.Request) {
 	json.NewEncoder(w).Encode(cart)
 }
 
+// UpdateOrder : currently needs fixin in getting the order from db
+// nested struct querying (mongodb)
+func UpdateOrder(w http.ResponseWriter, request *http.Request) {
+	// set header
+	w.Header().Set("Content-Type", "application/json")
+	// get carts collection
+	cartsCollection := db.Collection("carts")
+	// init cart variable
+	var cart Cart
+	// get params from request
+	var params = mux.Vars(request)
+	// convert string to object id
+	cartID, _ := primitive.ObjectIDFromHex(params["cartID"])
+	// create filter
+	cartFilter := bson.M{"_id": cartID}
+	fmt.Println(cartFilter)
+	// init order variable
+	var order Order
+	// convert string to object id
+	orderID, _ := primitive.ObjectIDFromHex(params["orderID"])
+	// create filter
+	orderFilter := bson.M{"orders._id": orderID}
+	cartsCollection.FindOne(context.TODO(), orderFilter).Decode(&order)
+	fmt.Println(order)
+	json.NewEncoder(w).Encode(cart)
+}
+
 // InitAPI : initialize cart management API
 func InitAPI() {
+	defer wg.Done()
 	// get port
 	port := getEnvironment("PORT", ".env")
 	// check port in environment
@@ -286,7 +314,7 @@ func InitAPI() {
 	router.HandleFunc("/carts/delete/{cartID}", DeleteCart).Methods("DELETE")
 	router.HandleFunc("/carts/get/{cartID}/orders", AllOrders).Methods("GET")
 	router.HandleFunc("/carts/update/{cartID}/orders/create", CreateOrder).Methods("POST")
-	//router.HandleFunc("/carts/update/{cartID}/orders/update/{orderId}", UpdateOrder).Methods("PUT")
+	router.HandleFunc("/carts/update/{cartID}/orders/update/{orderId}", UpdateOrder).Methods("PUT")
 	//router.HandleFunc("/carts/delete/{cartID}/orders/delete/{orderId}", DeleteOrder).Methods("DELETE")
 	// configure logger
 	loggedRouter := handlers.LoggingHandler(os.Stdout, router)

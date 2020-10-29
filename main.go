@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+// sync
+var wg sync.WaitGroup
 
 var db *mongo.Database
 
@@ -26,6 +30,11 @@ func main() {
 	dbName := getEnvironment("DB_NAME", ".env")
 	// connect to db
 	db = client.Database(dbName)
+	wg.Add(1)
 	// init web app with database
-	InitAPI()
+	go InitAPI()
+	wg.Add(1)
+	// Init slack app
+	go InitSlack()
+	wg.Wait()
 }
