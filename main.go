@@ -33,8 +33,8 @@ func main() {
 	wg.Add(1)
 	// init web app with database
 	go InitAPI()
-	wg.Add(1)
+	//wg.Add(1)
 	// Init slack app
-	go InitSlack()
+	//go InitSlack()
 	wg.Wait()
 }

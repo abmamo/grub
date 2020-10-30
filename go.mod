@@ -7,6 +7,8 @@ require (
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.3.0
+	github.com/maxence-charriere/go-app/v6 v6.6.2
+	github.com/maxence-charriere/go-app/v7 v7.0.5
 	github.com/nlopes/slack v0.6.0
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shomali11/slacker v0.0.0-20200610181250-3156f073f291
