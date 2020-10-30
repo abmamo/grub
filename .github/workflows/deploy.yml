@@ -1,4 +1,4 @@
-name: deploy grubAPI
+name: grub
 
 on:
   push:
