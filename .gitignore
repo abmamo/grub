@@ -17,4 +17,5 @@
 # environment variables
 .env
 *env/*
+*/slack/env*
 *ngrok*
