@@ -22,17 +22,17 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN go build -o grubAPI .
+RUN go build -o grub .
 
 # Move to /dist directory as the place for resulting binary folder
 WORKDIR /dist
 COPY .env /dist
 
 # Copy binary from build to main folder
-RUN cp /build/grubAPI .
+RUN cp /build/grub .
 
 # Export necessary port
 EXPOSE 3333
 
 # Command to run when starting the container
-CMD ["/dist/grubAPI"]
+CMD ["/dist/grub"]
