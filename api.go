@@ -146,12 +146,12 @@ func UpdateCart(w http.ResponseWriter, request *http.Request) {
 	_ = json.NewDecoder(request.Body).Decode(&cart)
 	// prepare update model
 	update := bson.D{
-		{"$set", bson.D{
-			{"name", cart.Name},
-			{"admin", cart.Admin},
-			{"coadmins", cart.CoAdmins},
-			{"menulinks", cart.MenuLinks},
-			{"expires", cart.Expires},
+		primitive.E{Key: "$set", Value: bson.D{
+			primitive.E{Key: "name", Value: cart.Name},
+			primitive.E{Key: "admin", Value: cart.Admin},
+			primitive.E{Key: "coadmins", Value: cart.CoAdmins},
+			primitive.E{Key: "menulinks", Value: cart.MenuLinks},
+			primitive.E{Key: "expires", Value: cart.Expires},
 		}},
 	}
 	// run update query
@@ -252,8 +252,8 @@ func CreateOrder(w http.ResponseWriter, request *http.Request) {
 	// update cart in db
 	// prepare update model
 	update := bson.D{
-		{"$set", bson.D{
-			{"orders", cart.Orders},
+		primitive.E{Key: "$set", Value: bson.D{
+			primitive.E{Key: "orders", Value: cart.Orders},
 		}},
 	}
 	// run update query

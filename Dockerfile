@@ -13,13 +13,11 @@ ENV GO111MODULE=on \
 # Move to working directory /build
 WORKDIR /build
 
+
 # Copy and download dependency using go mod
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
-
-# Copy the code into the container
-COPY . .
 
 # Build the application
 RUN go build -o grub .
@@ -30,6 +28,9 @@ COPY .env /dist
 
 # Copy binary from build to main folder
 RUN cp /build/grub .
+# Remove build files
+RUN rm -r /build/*
+
 
 # Export necessary port
 EXPOSE 3333

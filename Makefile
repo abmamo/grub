@@ -6,3 +6,7 @@ run:
 	go run main.go api.go env.go cart.go order.go random.go countdown.go
 container:
 	docker run --publish 3333:3333 --name grub --rm grub
+vet:
+	go vet .
+lint:
+	golint .
