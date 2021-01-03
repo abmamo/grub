@@ -1,5 +1,5 @@
 # Base image
-FROM node:13.12.0-alpine
+FROM node:13.12.0-alpine as build
 # Set working directory
 WORKDIR /app
 # Add `/app/node_modules/.bin` to $PATH
@@ -10,5 +10,13 @@ RUN npm install --silent
 RUN npm install react-scripts@3.4.1 -g --silent
 # Copy source files
 COPY . ./
-# Start React app
-CMD ["npm", "start"]
+# Build source files
+RUN npm run build
+# Production image
+FROM nginx:stable-alpine
+# Serve built react app
+COPY --from=build /app/build /usr/share/nginx/html
+# Expose port 80 (nginx)
+EXPOSE 80
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
