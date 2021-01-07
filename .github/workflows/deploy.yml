@@ -32,7 +32,6 @@ jobs:
     
     # Setup Node
     - name: Setup Node
-      uses: actions/checkout@v2
       uses: actions/setup-node@v2
       with:
           node-version: '12'
