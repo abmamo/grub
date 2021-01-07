@@ -2,13 +2,14 @@
 FROM node:13.12.0-alpine
 # Set working directory
 WORKDIR /app
-# Add `/app/node_modules/.bin` to $PATH
+# Add node moules to path
 ENV PATH /app/node_modules/.bin:$PATH
+# Copy dependency file
+COPY yarn.lock ./
 # Install app dependencies
-COPY package.json ./
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
+RUN npm install react-scripts -g --silent
+RUN yarn install
 # Copy source files
 COPY . ./
 # Start React app
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

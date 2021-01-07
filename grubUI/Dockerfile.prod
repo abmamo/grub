@@ -2,19 +2,20 @@
 FROM node:13.12.0-alpine as build
 # Set working directory
 WORKDIR /app
-# Add `/app/node_modules/.bin` to $PATH
+# Add node moules to path
 ENV PATH /app/node_modules/.bin:$PATH
+# Copy dependency info
+COPY yarn.lock ./
 # Install app dependencies
-COPY package.json ./
-RUN npm install --silent
-RUN npm install react-scripts@3.4.1 -g --silent
+RUN npm install react-scripts -g --silent
+RUN yarn install
 # Copy source files
 COPY . ./
 # Build source files
-RUN npm run build
+RUN yarn build
 # Production image
 FROM nginx:stable-alpine
-# Serve built react app
+# Serve built react app with nginx
 COPY --from=build /app/build /usr/share/nginx/html
 # Expose port 80 (nginx)
 EXPOSE 80
