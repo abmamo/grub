@@ -44,9 +44,9 @@ jobs:
         envkey_DB_NAME: ${{ secrets.DB_NAME }}
         file_name: .env
 
-    # Run testing on the code
+    # Run testing on API
     - name: Run testing
       run: |
-        ls
-        cd grubapi
+        mv .env grubAPI
+        cd grubAPI
         go test -v
