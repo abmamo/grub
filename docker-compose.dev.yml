@@ -9,7 +9,7 @@ services:
       ports:
         - '3333:3333'
     grubui-dev:
-      container_name: grubapi-dev
+      container_name: grubui-dev
       restart: always
       build:
         dockerfile: Dockerfile
