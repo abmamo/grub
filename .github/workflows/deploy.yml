@@ -42,10 +42,11 @@ jobs:
       with:
         envkey_ATLAS_URI: ${{ secrets.ATLAS_URI }}
         envkey_DB_NAME: ${{ secrets.DB_NAME }}
-        file_name: ./grubapi/.env
+        file_name: .env
 
     # Run testing on the code
     - name: Run testing
       run: |
+        ls
         cd grubapi
         go test -v
